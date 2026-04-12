@@ -3,9 +3,7 @@
 ## What's Project Poseidon?
 **A CraftBukkit CB1060 fork for Beta 1.7.3 fixing bugs and adding basic features.<br>**
 
-If your looking for Project Poseidon support on pre-1.7.3 versions, please check out [Project Poseidon Uberbukkit](https://github.com/Moresteck/Project-Poseidon-Uberbukkit) developed by Moresteck which supports earlier versions.<br>
-
-Discord: https://discord.gg/FwKg676
+Discord: https://discord.gg/DGqM9qPcFu
 
 ## Features
 This is a non-exhaustive list of features that Project Poseidon includes:
@@ -36,14 +34,12 @@ This is a non-exhaustive list of features that Project Poseidon includes:
 
 
 ## Want to use Project Poseidon on your server?
-Please read the following article before changing over to Project Poseidon: https://github.com/RhysB/Project-Poseidon/wiki/Implementing-Project-Poseidon-In-Production
+Video Soon
 
 # Download
-You can download the latest builds at the [GitHub Releases](https://github.com/retromcorg/Project-Poseidon/releases/).
+You can download the latest builds at the [GitHub Releases](https://github.com/PizzaDonutDev/Project-Poseidon/releases).
 
-Historical builds can be found on the [Glass Launcher Jenkins](https://jenkins.glass-launcher.net/job/Project-Poseidon/).
-
-Please note, download the artifact (JAR) without original in the name, eg. `project-poseidon-1.1.8.jar`.
+Please note, download the artifact (JAR) without original in the name, eg. `project-poseidon-1.0.0.jar`.
 
 ## Maven Repository & Plugin Development
 
@@ -55,9 +51,6 @@ Project Poseidon releases are published to the Legacy Minecraft Maven repository
   https://repository.johnymuffin.com/#browse/browse:maven-releases:com%2Flegacyminecraft%2Fposeidon%2Fposeidon-craftbukkit
 
 This repository can be used to depend on Poseidon artifacts directly in your build tooling (e.g. Maven or Gradle) when developing plugins.
-
-### Plugin Development Examples
-Examples demonstrating how to develop plugins for Poseidon using **Maven** and **GitHub Actions** can be found here:
 
 - **Poseidon Plugin Template:**  
   https://github.com/retromcorg/Poseidon-Plugin-Template
@@ -90,22 +83,5 @@ mvn clean package
 
 You should now have a runnable JAR inside the /target folder!
 
-## Regarding the DMCA of CraftBukkit in 2014
-The contributor Wolverness who first contributed on CraftBukkit in February 2012 issued a DMCA against CraftBukkit and other major forks of CraftBukkit.
-This project is based on the following commits:
-
-* CraftBukkit: [54bcd1c1f36691a714234e5ca2f30a20b3ad2816](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/commits/54bcd1c1f36691a714234e5ca2f30a20b3ad2816) (SpigotMC)
-* Bukkit: [3524fde5ffc387ef9e39f6ee7dae83ff4dbf8229](https://github.com/Bukkit/Bukkit/commit/3524fde5ffc387ef9e39f6ee7dae83ff4dbf8229) (GitHub)
-
-The Bukkit and CraftBukkit commits that Project Poseidon is based on are before Wolverness started contributing.
-
-If you were a contributor before these commits please feel free to contact me or open an issue asking for this repository to be taken down.
-
-## MC-DEV
-We include files from the mc-dev GitHub repository. This code is automatically generated using minecraft_server.jar and sourced from the Bukkit repositories.
-* MC-DEV: [1a792ed860ebe2c6d4c40c52f3bc7b9e0789ca23](https://github.com/Bukkit/mc-dev/commit/1a792ed860ebe2c6d4c40c52f3bc7b9e0789ca23)
 
 If Mojang Studios or someone on their behalf wants to have this repository removed due to including copyrighted Minecraft sources like bukkit/mc-dev, please contact me or make an issue.
-
-## How to setup ModLoaderMP support (NOT WORKING) 
-Please read the following: https://github.com/RhysB/Project-Poseidon/wiki/Adding-ModLoaderMP
