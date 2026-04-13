@@ -395,26 +395,22 @@ public class MinecraftServer implements Runnable, ICommandListener {
         if (listenerStatistics != null && !listenerStatistics.isEmpty()) {
             log.info("[Poseidon] Listener statistics from this session:");
 
-            // Iterate over each listener and log their statistics
             for (Map.Entry<String, PerformanceStatistic> entry : listenerStatistics.entrySet()) {
                 String listener = entry.getKey();
                 PerformanceStatistic stats = entry.getValue();
 
-                if (stats.getMaxExecutionTime() == 0) {
+                if (stats == null || stats.getMaxExecutionTime() == 0) {
                     continue;
                 }
 
-                if (stats != null) {
-                    log.info(String.format("[Poseidon] Listener: %s - Processed %d events, Total Execution Time: %d ms, Avg Time: %d ms",
-                            listener,
-                            stats.getEventCount(),
-                            stats.getTotalExecutionTime(),
-                            stats.getAverageExecutionTime()));
-                } else {
-                    log.warning("[Poseidon] No statistics available for listener: " + listener);
-                }
+                log.info(String.format("[Poseidon] Listener: %s - Processed %d events, Total Execution Time: %d ms, Avg Time: %d ms",
+                        listener,
+                        stats.getEventCount(),
+                        stats.getTotalExecutionTime(),
+                        stats.getAverageExecutionTime()));
             }
         }
+
 
 
         // Check if the statistics map is not empty
@@ -429,24 +425,19 @@ public class MinecraftServer implements Runnable, ICommandListener {
         if (taskStatistics != null && !taskStatistics.isEmpty()) {
             log.info("[Poseidon] Synchronous task statistics from this session:");
 
-            // Iterate over each task and log their statistics
             for (Map.Entry<String, PerformanceStatistic> entry : taskStatistics.entrySet()) {
                 String task = entry.getKey();
                 PerformanceStatistic stats = entry.getValue();
 
-                if (stats.getMaxExecutionTime() == 0) {
+                if (stats == null || stats.getMaxExecutionTime() == 0) {
                     continue;
                 }
 
-                if (stats != null) {
-                    log.info(String.format("[Poseidon] Task: %s - Processed %d events, Total Execution Time: %d ms, Avg Time: %d ms",
-                            task,
-                            stats.getEventCount(),
-                            stats.getTotalExecutionTime(),
-                            stats.getAverageExecutionTime()));
-                } else {
-                    log.warning("[Poseidon] No statistics available for task: " + task);
-                }
+                log.info(String.format("[Poseidon] Task: %s - Processed %d events, Total Execution Time: %d ms, Avg Time: %d ms",
+                        task,
+                        stats.getEventCount(),
+                        stats.getTotalExecutionTime(),
+                        stats.getAverageExecutionTime()));
             }
         }
         // Poseidon End
