@@ -44,8 +44,8 @@ public class ChunkLoader implements IChunkLoader {
         File file1 = this.a(i, j);
 
         if (file1 != null && file1.exists()) {
-            try {
-                FileInputStream fileinputstream = new FileInputStream(file1);
+            try (FileInputStream fileinputstream = new FileInputStream(file1)) {
+
                 NBTTagCompound nbttagcompound = CompressedStreamTools.a((InputStream) fileinputstream);
 
                 if (!nbttagcompound.hasKey("Level")) {
@@ -70,6 +70,7 @@ public class ChunkLoader implements IChunkLoader {
                 chunk.h();
                 return chunk;
             } catch (Exception exception) {
+                System.out.println("Failed to load chunk at " + i + "," + j);
                 exception.printStackTrace();
             }
         }
@@ -88,15 +89,16 @@ public class ChunkLoader implements IChunkLoader {
         }
 
         try {
-            File file2 = new File(this.a, "tmp_chunk.dat");
-            FileOutputStream fileoutputstream = new FileOutputStream(file2);
-            NBTTagCompound nbttagcompound = new NBTTagCompound();
-            NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+            File file2 = new File(this.a, "tmp_chunk_" + chunk.x + "_" + chunk.z + ".dat");
+            try (FileOutputStream fileoutputstream = new FileOutputStream(file2)) {
+                NBTTagCompound nbttagcompound = new NBTTagCompound();
+                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
 
-            nbttagcompound.a("Level", (NBTBase) nbttagcompound1);
-            a(chunk, world, nbttagcompound1);
-            CompressedStreamTools.a(nbttagcompound, (OutputStream) fileoutputstream);
-            fileoutputstream.close();
+                nbttagcompound.a("Level", (NBTBase) nbttagcompound1);
+                a(chunk, world, nbttagcompound1);
+                CompressedStreamTools.a(nbttagcompound, (OutputStream) fileoutputstream);
+            }
+
             if (file1.exists()) {
                 file1.delete();
             }
@@ -106,6 +108,7 @@ public class ChunkLoader implements IChunkLoader {
 
             worlddata1.b(worlddata1.g() + file1.length());
         } catch (Exception exception) {
+            System.out.println("Failed to save chunk at " + chunk.x + "," + chunk.z);
             exception.printStackTrace();
         }
     }

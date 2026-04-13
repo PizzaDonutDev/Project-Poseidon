@@ -4,6 +4,7 @@ import com.legacyminecraft.poseidon.PoseidonConfig;
 import com.legacyminecraft.poseidon.event.PlayerReceivePacketEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.CraftServer;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -41,6 +42,7 @@ public class NetworkManager {
     public int f = 0;
     private int lowPriorityQueueDelay = 50;
     private final boolean firePacketEvents;
+    private  static String cachedMotd = null;
 
     private final boolean spamDetection;
 
@@ -72,7 +74,7 @@ public class NetworkManager {
             if (PoseidonConfig.getEmptyNode().getBoolean("settings.enable-tpc-nodelay", false)) {
                 socket.setTcpNoDelay(true);
             }
-            this.input = new DataInputStream(socket.getInputStream());
+            this.input = new DataInputStream(new java.io.BufferedInputStream(socket.getInputStream()));
             this.output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream(), 5120));
         } catch (java.io.IOException socketexception) {
             // CraftBukkit end
@@ -177,6 +179,30 @@ public class NetworkManager {
         boolean flag = false;
 
         try {
+            // Peek at the first byte
+            this.input.mark(1);
+            int firstByte = this.input.read();
+
+            if (firstByte == 0xFE) {
+                // Server list ping
+                if (cachedMotd == null) {
+                    cachedMotd = ((CraftServer) Bukkit.getServer()).getServer().propertyManager.getString("motd", "A Beta 1.7.3 Minecraft Server");
+                }
+                String motd = cachedMotd;
+                String response = motd + "§" + Bukkit.getOnlinePlayers().length + "§" + Bukkit.getMaxPlayers();
+
+                // Write kick packet with MOTD response
+                this.output.write(0xFF);
+                this.output.writeShort(response.length());
+                this.output.writeChars(response);
+                this.output.flush();
+                this.a("disconnect.quitting", new Object[0]);
+                return false;
+            }
+
+            // Not a ping, reset and read normally
+            this.input.reset();
+
             Packet packet = Packet.a(this.input, this.p.c());
 
             if (packet != null) {
