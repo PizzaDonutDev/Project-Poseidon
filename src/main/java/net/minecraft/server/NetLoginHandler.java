@@ -218,7 +218,9 @@ public class NetLoginHandler extends NetHandler {
     }
 
     public void a(String s, Object[] aobject) {
-        a.info(this.b() + " lost connection");
+        if (!"disconnect.quitting".equals(s)) {
+            a.info(this.b() + " Lost connection");
+        }
         this.c = true;
     }
 
