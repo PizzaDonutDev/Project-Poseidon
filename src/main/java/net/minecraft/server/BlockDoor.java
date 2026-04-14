@@ -147,6 +147,10 @@ public class BlockDoor extends Block {
 
             if (world.getTypeId(i, j + 1, k) != this.id) {
                 // Poseidon start
+                world.setTypeId(i, j, k, 0);
+                if (!world.isStatic) {
+                    this.g(world, i, j, k, i1);
+                }
                 return;
                 // Poseidon end
             }
