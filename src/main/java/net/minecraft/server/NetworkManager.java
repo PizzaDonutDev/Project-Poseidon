@@ -184,19 +184,28 @@ public class NetworkManager {
             int firstByte = this.input.read();
 
             if (firstByte == 0xFE) {
-                // Server list ping
-                if (cachedMotd == null) {
-                    cachedMotd = ((CraftServer) Bukkit.getServer()).getServer().propertyManager.getString("motd", "A Beta 1.7.3 Minecraft Server");
-                }
-                String motd = cachedMotd;
-                String response = motd + "§" + Bukkit.getOnlinePlayers().length + "§" + Bukkit.getMaxPlayers();
+                final Socket pingSocket = this.socket;
+                final DataOutputStream pingOutput = this.output;
+                new Thread("Server List Ping") {
+                    public void run() {
+                        try {
+                            if (cachedMotd == null) {
+                                cachedMotd = ((CraftServer) Bukkit.getServer()).getServer().propertyManager.getString("motd", "A Beta 1.7.3 Minecraft Server");
+                            }
+                            String motd = cachedMotd;
+                            String response = motd + "§" + Bukkit.getOnlinePlayers().length + "§" + Bukkit.getMaxPlayers();
 
-                // Write kick packet with MOTD response
-                this.output.write(0xFF);
-                this.output.writeShort(response.length());
-                this.output.writeChars(response);
-                this.output.flush();
-                this.a("disconnect.quitting", new Object[0]);
+                            pingOutput.write(0xFF);
+                            pingOutput.writeShort(response.length());
+                            pingOutput.writeChars(response);
+                            pingOutput.flush();
+                            Thread.sleep(100L);
+                            pingSocket.close();
+                        } catch (Exception e) {
+                            // Ping failed silently
+                        }
+                    }
+                }.start();
                 return false;
             }
 
