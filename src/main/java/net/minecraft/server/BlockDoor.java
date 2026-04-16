@@ -137,6 +137,9 @@ public class BlockDoor extends Block {
         if ((i1 & 8) != 0) {
             if (world.getTypeId(i, j - 1, k) != this.id) {
                 world.setTypeId(i, j, k, 0);
+                if (!world.isStatic) {
+                    world.setTypeId(i, j - 1, k, 0);
+                }
             }
 
             if (l > 0 && Block.byId[l].isPowerSource()) {
