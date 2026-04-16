@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class BlockPistonExtension extends Block {
 
-    private int a = -1;
+    private int a = -1; // texture override, -1 means use default
 
     public BlockPistonExtension(int i, int j) {
         super(i, j, Material.PISTON);
@@ -16,7 +16,7 @@ public class BlockPistonExtension extends Block {
     public void remove(World world, int i, int j, int k) {
         super.remove(world, i, j, k);
         int l = world.getData(i, j, k);
-        if (l < 0 || l == 6 || l == 7 || l > 13) return; // CraftBukkit - fixed a piston AIOOBE issue.
+        if (b(l) > 5) return; // invalid direction, ignore
         int i1 = PistonBlockTextures.a[b(l)];
 
         i += PistonBlockTextures.b[i1];
@@ -48,63 +48,64 @@ public class BlockPistonExtension extends Block {
     }
 
     public boolean canPlace(World world, int i, int j, int k) {
-        return false;
+        return false; // extension blocks cannot be placed by players
     }
 
     public boolean canPlace(World world, int i, int j, int k, int l) {
-        return false;
+        return false; // extension blocks cannot be placed by players
     }
 
     public int a(Random random) {
-        return 0;
+        return 0; // extension blocks drop nothing when broken
     }
 
     public void a(World world, int i, int j, int k, AxisAlignedBB axisalignedbb, ArrayList arraylist) {
         int l = world.getData(i, j, k);
 
         switch (b(l)) {
-        case 0:
-            this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.375F, 0.25F, 0.375F, 0.625F, 1.0F, 0.625F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            break;
+            case 0:
+                this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.375F, 0.25F, 0.375F, 0.625F, 1.0F, 0.625F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                break;
 
-        case 1:
-            this.a(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.375F, 0.0F, 0.375F, 0.625F, 0.75F, 0.625F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            break;
+            case 1:
+                this.a(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.375F, 0.0F, 0.375F, 0.625F, 0.75F, 0.625F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                break;
 
-        case 2:
-            this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.25F, 0.375F, 0.25F, 0.75F, 0.625F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            break;
+            case 2:
+                this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.25F, 0.375F, 0.25F, 0.75F, 0.625F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                break;
 
-        case 3:
-            this.a(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.25F, 0.375F, 0.0F, 0.75F, 0.625F, 0.75F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            break;
+            case 3:
+                this.a(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.25F, 0.375F, 0.0F, 0.75F, 0.625F, 0.75F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                break;
 
-        case 4:
-            this.a(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.375F, 0.25F, 0.25F, 0.625F, 0.75F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            break;
+            case 4:
+                this.a(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.375F, 0.25F, 0.25F, 0.625F, 0.75F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                break;
 
-        case 5:
-            this.a(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
-            this.a(0.0F, 0.375F, 0.25F, 0.75F, 0.625F, 0.75F);
-            super.a(world, i, j, k, axisalignedbb, arraylist);
+            case 5:
+                this.a(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
+                this.a(0.0F, 0.375F, 0.25F, 0.75F, 0.625F, 0.75F);
+                super.a(world, i, j, k, axisalignedbb, arraylist);
         }
 
+        // reset shared bounds state after collision checks
         this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
     }
 
@@ -112,28 +113,28 @@ public class BlockPistonExtension extends Block {
         int l = iblockaccess.getData(i, j, k);
 
         switch (b(l)) {
-        case 0:
-            this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
-            break;
+            case 0:
+                this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
+                break;
 
-        case 1:
-            this.a(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
-            break;
+            case 1:
+                this.a(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
+                break;
 
-        case 2:
-            this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
-            break;
+            case 2:
+                this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
+                break;
 
-        case 3:
-            this.a(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
-            break;
+            case 3:
+                this.a(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
+                break;
 
-        case 4:
-            this.a(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
-            break;
+            case 4:
+                this.a(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
+                break;
 
-        case 5:
-            this.a(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+            case 5:
+                this.a(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         }
     }
 
@@ -149,6 +150,7 @@ public class BlockPistonExtension extends Block {
         }
     }
 
+    // extracts piston facing direction from block data (lower 3 bits)
     public static int b(int i) {
         return i & 7;
     }
