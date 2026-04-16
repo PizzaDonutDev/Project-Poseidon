@@ -12,7 +12,8 @@ import java.util.ArrayList;
 public class BlockPiston extends Block {
 
     private boolean a;
-    private boolean b;
+    private volatile boolean b;
+    private static final PoseidonConfig CONFIG = PoseidonConfig.getInstance();
 
     public BlockPiston(int i, int j, boolean flag) {
         super(i, j, Material.PISTON);
@@ -36,8 +37,13 @@ public class BlockPiston extends Block {
     }
 
     public void postPlace(World world, int i, int j, int k, EntityLiving entityliving) {
-        int l = c(world, i, j, k, (EntityHuman) entityliving);
-
+        int l;
+        if (entityliving instanceof EntityHuman) {
+            l = c(world, i, j, k, (EntityHuman) entityliving);
+        } else {
+            l = MathHelper.floor((double) (entityliving.yaw * 4.0F / 360.0F) + 0.5D) & 3;
+            l = l == 0 ? 2 : (l == 1 ? 5 : (l == 2 ? 3 : (l == 3 ? 4 : 0)));
+        }
         world.setData(i, j, k, l);
         if (!world.isStatic) {
             this.g(world, i, j, k);
@@ -69,6 +75,7 @@ public class BlockPiston extends Block {
                     length = h(world, i, j, k, i1);
                 } catch (RuntimeException exception) {
                     System.out.println("[Poseidon] A piston crash attempt occurred at " + i + " " + j + " " + k + " in " + world.getWorld().getName());
+                    exception.printStackTrace();
                     return;
                 }
                 if (length >= 0) {
@@ -243,7 +250,7 @@ public class BlockPiston extends Block {
     private static boolean a(int i, World world, int j, int k, int l, boolean flag) {
         if (i == Block.OBSIDIAN.id) {
             return false;
-        } else if ((i == Block.FURNACE.id || i == Block.BURNING_FURNACE.id) && PoseidonConfig.getInstance().getBoolean("world.settings.block-pistons-pushing-furnaces.enabled", true)) {
+        } else if ((i == Block.FURNACE.id || i == Block.BURNING_FURNACE.id) && CONFIG.getBoolean("world.settings.block-pistons-pushing-furnaces.enabled", true)) {
 //            System.out.println("Blocking a piston from being pushed.");
             return false;
         } else {
@@ -340,7 +347,7 @@ public class BlockPiston extends Block {
                     }
 
                     Block.byId[i2].g(world, i1, j1, k1, world.getData(i1, j1, k1));
-                    if (PoseidonConfig.getInstance().getConfigBoolean("world.settings.pistons.other-fixes.enabled", true)) {
+                    if (CONFIG.getConfigBoolean("world.settings.pistons.other-fixes.enabled", true)) {
                         world.setRawTypeId(i1, j1, k1, 0);
                     } else {
                         world.setTypeId(i1, j1, k1, 0);
