@@ -10,7 +10,7 @@ public class BlockPistonMoving extends BlockContainer {
     }
 
     protected TileEntity a_() {
-        return null;
+        return null; // tile entity is created externally via the static a() factory
     }
 
     public void c(World world, int i, int j, int k) {}
@@ -20,17 +20,16 @@ public class BlockPistonMoving extends BlockContainer {
 
         if (tileentity != null && tileentity instanceof TileEntityPiston) {
             ((TileEntityPiston) tileentity).k();
-        } else {
-            super.remove(world, i, j, k);
         }
+        super.remove(world, i, j, k);
     }
 
     public boolean canPlace(World world, int i, int j, int k) {
-        return false;
+        return false; // moving piston blocks cannot be placed by players
     }
 
     public boolean canPlace(World world, int i, int j, int k, int l) {
-        return false;
+        return false; // moving piston blocks cannot be placed by players
     }
 
     public boolean a() {
@@ -42,6 +41,7 @@ public class BlockPistonMoving extends BlockContainer {
     }
 
     public boolean interact(World world, int i, int j, int k, EntityHuman entityhuman) {
+        // clean up orphaned moving piston block with no tile entity
         if (!world.isStatic && world.getTileEntity(i, j, k) == null) {
             world.setTypeId(i, j, k, 0);
             return true;
@@ -65,9 +65,7 @@ public class BlockPistonMoving extends BlockContainer {
     }
 
     public void doPhysics(World world, int i, int j, int k, int l) {
-        if (!world.isStatic && world.getTileEntity(i, j, k) == null) {
-            ;
-        }
+        // moving piston blocks handle their own physics via TileEntityPiston
     }
 
     public static TileEntity a(int i, int j, int k, boolean flag, boolean flag1) {
@@ -138,6 +136,7 @@ public class BlockPistonMoving extends BlockContainer {
         }
     }
 
+    // null-safe helper to get the TileEntityPiston at the given position
     private TileEntityPiston b(IBlockAccess iblockaccess, int i, int j, int k) {
         TileEntity tileentity = iblockaccess.getTileEntity(i, j, k);
 
