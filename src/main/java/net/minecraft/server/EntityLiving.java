@@ -70,6 +70,7 @@ public abstract class EntityLiving extends Entity {
     private Entity b;
     protected int aF = 0;
     private static final PoseidonConfig CONFIG = PoseidonConfig.getInstance();
+    protected int maxHealth = 20;
 
     public EntityLiving(World world) {
         super(world);
@@ -335,8 +336,8 @@ public abstract class EntityLiving extends Entity {
                 this.health += event.getAmount();
             }
             // CraftBukkit end
-            if (this.health > 20) {
-                this.health = 20;
+            if (this.health > this.maxHealth) {
+                this.health = this.maxHealth;
             }
 
             this.noDamageTicks = this.maxNoDamageTicks / 2;
@@ -647,9 +648,11 @@ public abstract class EntityLiving extends Entity {
 
     public void v() {
         if (this.aq > 0) {
-            double d0 = this.locX + (this.ar - this.locX) / (double) this.aq;
-            double d1 = this.locY + (this.as - this.locY) / (double) this.aq;
-            double d2 = this.locZ + (this.at - this.locZ) / (double) this.aq;
+            double t = 1.0 / (double) this.aq;
+            double easedT = t * t * (3.0 - 2.0 * t); // smoothstep
+            double d0 = this.locX + (this.ar - this.locX) * easedT;
+            double d1 = this.locY + (this.as - this.locY) * easedT;
+            double d2 = this.locZ + (this.at - this.locZ) * easedT;
 
             double d3;
 
@@ -790,7 +793,7 @@ public abstract class EntityLiving extends Entity {
                 this.aB = (this.random.nextFloat() - 0.5F) * 20.0F;
             }
 
-            this.yaw += this.aB;
+            this.yaw += this.aB * 0.5F; // smooth out random direction changes
             this.pitch = this.aD;
         }
 
@@ -847,11 +850,11 @@ public abstract class EntityLiving extends Entity {
         }
 
         if (f3 > f2) {
-            f3 = f2;
+            f3 = f2 * 0.85F; // ease into rotation limit
         }
 
         if (f3 < -f2) {
-            f3 = -f2;
+            f3 = -f2 * 0.85F;
         }
 
         return f + f3;
