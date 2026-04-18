@@ -27,6 +27,7 @@ public class ChunkProviderServer implements IChunkProvider {
     public LongHashtable<Chunk> chunks = new LongHashtable<Chunk>();
     public List chunkList = new ArrayList();
     public WorldServer world;
+    private static final PoseidonConfig CONFIG = PoseidonConfig.getInstance();
     // CraftBukkit end
 
     public ChunkProviderServer(WorldServer worldserver, IChunkLoader ichunkloader, IChunkProvider ichunkprovider) {
@@ -117,14 +118,13 @@ public class ChunkProviderServer implements IChunkProvider {
             chunk = chunk == null ? (!this.world.isLoading && !this.forceChunkLoad ? this.emptyChunk : this.getChunkAt(i, j)) : chunk;
         } catch (Exception e) {
             //Poseidon chunk regenerate
-            if (PoseidonConfig.getInstance().getConfigBoolean("emergency.debug.regenerate-corrupt-chunks.enable")) {
+            if (CONFIG.getConfigBoolean("emergency.debug.regenerate-corrupt-chunks.enable")) {
                 System.out.println("Poseidon ran into a critical error when attempting to load a chunk (" + i + "," + j + "+. Regenerating chunk...");
                 chunk = this.emptyChunk;
-            } else  {
+            } else {
                 System.out.println("Poseidon ran into a critical error when attempting to load a chunk (" + i + "," + j + "+. The server will now likely hang. Enabling \"emergency.debug.regenerate-corrupt-chunks.enable\" in the Poseidon.yml may help.");
                 e.printStackTrace();
             }
-            e.printStackTrace();
         }
 
 
@@ -135,6 +135,7 @@ public class ChunkProviderServer implements IChunkProvider {
             Throwable ex = new Throwable();
             ex.fillInStackTrace();
             ex.printStackTrace();
+            return this.emptyChunk; // don't return wrong chunk
         }
         return chunk;
         // CraftBukkit end
@@ -212,6 +213,29 @@ public class ChunkProviderServer implements IChunkProvider {
     }
 
     public boolean saveChunks(boolean flag, IProgressUpdate iprogressupdate) {
+        // sort chunks by distance to nearest player before saving
+        this.chunkList.sort((a, b) -> {
+            Chunk ca = (Chunk) a;
+            Chunk cb = (Chunk) b;
+            double dax = ca.x * 16 + 8;
+            double daz = ca.z * 16 + 8;
+            double dbx = cb.x * 16 + 8;
+            double dbz = cb.z * 16 + 8;
+            double da = Double.MAX_VALUE;
+            double db = Double.MAX_VALUE;
+            for (int k = 0; k < this.world.players.size(); k++) {
+                EntityHuman p = (EntityHuman) this.world.players.get(k);
+                double ddax = p.locX - dax;
+                double ddaz = p.locZ - daz;
+                double ddbx = p.locX - dbx;
+                double ddbz = p.locZ - dbz;
+                double distA = ddax * ddax + ddaz * ddaz;
+                double distB = ddbx * ddbx + ddbz * ddbz;
+                if (distA < da) da = distA;
+                if (distB < db) db = distB;
+            }
+            return Double.compare(da, db);
+        });
         int i = 0;
 
         for (int j = 0; j < this.chunkList.size(); ++j) {
