@@ -25,7 +25,7 @@ public abstract class EntityLiving extends Entity {
     protected float N;
     protected float O;
     protected float P;
-    protected boolean Q = true;
+    protected boolean Q = true; // NOTE: shares name with method Q(), be careful when refactoring
     protected String texture = "/mob/char.png";
     protected boolean S = true;
     protected float T = 0.0F;
@@ -69,6 +69,7 @@ public abstract class EntityLiving extends Entity {
     protected float aE = 0.7F;
     private Entity b;
     protected int aF = 0;
+    private static final PoseidonConfig CONFIG = PoseidonConfig.getInstance();
 
     public EntityLiving(World world) {
         super(world);
@@ -80,7 +81,9 @@ public abstract class EntityLiving extends Entity {
         this.bs = 0.5F;
     }
 
-    protected void b() {}
+    protected void b() {
+        // intentionally empty - subclasses override to define entity-specific behaviour
+}
 
     public boolean e(Entity entity) {
         return this.world.a(Vec3D.create(this.locX, this.locY + (double) this.t(), this.locZ), Vec3D.create(entity.locX, entity.locY + (double) entity.t(), entity.locZ)) == null;
@@ -155,7 +158,7 @@ public abstract class EntityLiving extends Entity {
                 if (!event.isCancelled() && event.getDamage() != 0) {
                     boolean vc = this.velocityChanged;
                     this.damageEntity((Entity) null, event.getDamage());
-                    if (PoseidonConfig.getInstance().getBoolean("settings.fix-drowning-push-down.enabled", true)) this.velocityChanged = vc;
+                    if (CONFIG.getBoolean("settings.fix-drowning-push-down.enabled", true)) this.velocityChanged = vc;
                 }
                 // CraftBukkit end
             }
@@ -351,7 +354,7 @@ public abstract class EntityLiving extends Entity {
                 this.ao = 1.5F;
                 boolean flag = true;
 
-                if ((float) this.noDamageTicks > (float) this.maxNoDamageTicks / 2.0F) {
+                if (this.maxNoDamageTicks > 0 && (float) this.noDamageTicks > (float) this.maxNoDamageTicks / 2.0F) {
                     if (i <= this.lastDamage) {
                         return false;
                     }
@@ -420,7 +423,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     protected String i() {
-        return "random.hurt";
+        return "random.hurt"; // death sound intentionally uses hurt sound in base class, subclasses override
     }
 
     public void a(Entity entity, int i, double d0, double d1) {
@@ -669,10 +672,12 @@ public abstract class EntityLiving extends Entity {
                 double d4 = 0.0D;
 
                 for (int i = 0; i < list.size(); ++i) {
-                    AxisAlignedBB axisalignedbb = (AxisAlignedBB) list.get(i);
-
-                    if (axisalignedbb.e > d4) {
-                        d4 = axisalignedbb.e;
+                    Object obj = list.get(i);
+                    if (obj instanceof AxisAlignedBB) {
+                        AxisAlignedBB axisalignedbb = (AxisAlignedBB) obj;
+                        if (axisalignedbb.e > d4) {
+                            d4 = axisalignedbb.e;
+                        }
                     }
                 }
 
@@ -725,7 +730,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     protected void O() {
-        this.motY = 0.41999998688697815D;
+        this.motY = 0.41999998688697815D; // vanilla jump velocity
         this.airBorne = true;
     }
 
@@ -742,12 +747,12 @@ public abstract class EntityLiving extends Entity {
             double d2 = entityhuman.locZ - this.locZ;
             double d3 = d0 * d0 + d1 * d1 + d2 * d2;
 
-            if (d3 > 16384.0D) {
+            if (d3 > 16384.0D) { // 128 blocks squared - despawn if too far from player
                 this.die();
             }
 
             if (this.ay > 600 && this.random.nextInt(800) == 0) {
-                if (d3 < 1024.0D) {
+                if (d3 < 1024.0D) { // 32 blocks squared
                     this.ay = 0;
                 } else {
                     this.die();
