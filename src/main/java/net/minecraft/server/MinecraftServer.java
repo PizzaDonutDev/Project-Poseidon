@@ -580,14 +580,11 @@ public class MinecraftServer implements Runnable, ICommandListener {
             // if (j == 0 || this.propertyManager.getBoolean("allow-nether", true)) { // CraftBukkit
             WorldServer worldserver = this.worlds.get(j); // CraftBukkit
 
-            if (this.ticks % 20 == 0) {
-                // CraftBukkit start - only send timeupdates to the people in that world
-                for (int i = 0; i < worldserver.players.size(); ++i) { // Project Poseidon: serverConfigurationManager -> worldserver.players
-                    EntityPlayer entityPlayer = (EntityPlayer) worldserver.players.get(i);
-                    if (entityPlayer != null) {
-                        entityPlayer.netServerHandler.sendPacket(new Packet4UpdateTime(entityPlayer.getPlayerTime())); // Add support for per player time
-
-                    }
+            // Remove the if (this.ticks % 20 == 0) { ... } block and replace with:
+            for (int i = 0; i < worldserver.players.size(); ++i) {
+                EntityPlayer entityPlayer = (EntityPlayer) worldserver.players.get(i);
+                if (entityPlayer != null) {
+                    entityPlayer.netServerHandler.sendPacket(new Packet4UpdateTime(entityPlayer.getPlayerTime()));
                 }
                 // CraftBukkit end
             }
