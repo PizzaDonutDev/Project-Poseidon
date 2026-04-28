@@ -4,16 +4,23 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A chunk generator is responsible for the initial shaping of an entire chunk.
  * For example, the nether chunk generator should shape netherrack and soulsand
  */
 public abstract class ChunkGenerator {
+
+    private static final ExecutorService CHUNK_EXECUTOR = Executors.newFixedThreadPool(
+            Math.max(1, Runtime.getRuntime().availableProcessors() - 1)
+    );
+
     /**
      * Shapes the chunk for the given coordinates.<br />
      * <br />
@@ -40,6 +47,20 @@ public abstract class ChunkGenerator {
     public abstract byte[] generate(World world, Random random, int x, int z);
 
     /**
+     * Asynchronously shapes the chunk for the given coordinates.
+     * Wraps {@link #generate} and runs it on the shared chunk executor.
+     *
+     * @param world The world this chunk will be used for
+     * @param random The random generator to use
+     * @param x The X-coordinate of the chunk
+     * @param z The Z-coordinate of the chunk
+     * @return CompletableFuture containing the types for each block created by this generator
+     */
+    public CompletableFuture<byte[]> asyncGenerate(World world, Random random, int x, int z) {
+        return CompletableFuture.supplyAsync(() -> generate(world, random, x, z), CHUNK_EXECUTOR);
+    }
+
+    /**
      * Tests if the specified location is valid for a natural spawn position
      *
      * @param world The world we're testing on
@@ -49,7 +70,6 @@ public abstract class ChunkGenerator {
      */
     public boolean canSpawn(World world, int x, int z) {
         Block highest = world.getBlockAt(x, world.getHighestBlockYAt(x, z), z);
-
         switch (world.getEnvironment()) {
             case NETHER:
                 return true;
