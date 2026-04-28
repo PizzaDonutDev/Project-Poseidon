@@ -104,14 +104,14 @@ public class EntitySquid extends EntityWaterAnimal {
                 f = this.g / 3.1415927F;
                 this.i = MathHelper.sin(f * f * 3.1415927F) * 3.1415927F * 0.25F;
                 if ((double) f > 0.75D) {
-                    this.k = 1.0F;
+                    this.k += (1.0F - this.k) * 0.1F;  // ease instead of hard set
                     this.m = 1.0F;
                 } else {
                     this.m *= 0.8F;
                 }
             } else {
                 this.i = 0.0F;
-                this.k *= 0.9F;
+                this.k *= 0.95F;
                 this.m *= 0.99F;
             }
 
@@ -122,10 +122,10 @@ public class EntitySquid extends EntityWaterAnimal {
             }
 
             f = MathHelper.a(this.motX * this.motX + this.motZ * this.motZ);
-            this.K += (-((float) Math.atan2(this.motX, this.motZ)) * 180.0F / 3.1415927F - this.K) * 0.1F;
+            this.K += (-((float) Math.atan2(this.motX, this.motZ)) * 180.0F / 3.1415927F - this.K) * 0.05F;
             this.yaw = this.K;
             this.c += 3.1415927F * this.m * 1.5F;
-            this.a += (-((float) Math.atan2((double) f, this.motY)) * 180.0F / 3.1415927F - this.a) * 0.1F;
+            this.a += (-((float) Math.atan2((double) f, this.motY)) * 180.0F / 3.1415927F - this.a) * 0.05F;
         } else {
             this.i = MathHelper.abs(MathHelper.sin(this.g)) * 3.1415927F * 0.25F;
             if (!this.Y) {
@@ -144,7 +144,7 @@ public class EntitySquid extends EntityWaterAnimal {
     }
 
     protected void c_() {
-        if (this.random.nextInt(50) == 0 || !this.bA || this.n == 0.0F && this.o == 0.0F && this.p == 0.0F) {
+        if (this.random.nextInt(100) == 0 || !this.bA || this.n == 0.0F && this.o == 0.0F && this.p == 0.0F) {
             float f = this.random.nextFloat() * 3.1415927F * 2.0F;
 
             this.n = MathHelper.cos(f) * 0.2F;
