@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,12 +14,16 @@ public class ChunkLoader implements IChunkLoader {
     private File a;
     private boolean b;
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService loadExecutor = Executors.newFixedThreadPool(
+            Math.max(1, Runtime.getRuntime().availableProcessors() - 1)
+    );
 
     private final Map<Long, Chunk> chunkCache = java.util.Collections.synchronizedMap(
-    new LinkedHashMap<Long, Chunk>(256, 0.75f, true) {
-        protected boolean removeEldestEntry(Map.Entry<Long, Chunk> e) { return size() > 256; }
-    }
-);
+            new LinkedHashMap<Long, Chunk>(256, 0.75f, true) {
+                protected boolean removeEldestEntry(Map.Entry<Long, Chunk> e) { return size() > 256; }
+            }
+    );
+
     private long chunkKey(int i, int j) { return ((long)i << 32) | (j & 0xFFFFFFFFL); }
 
     public ChunkLoader(File file1, boolean flag) {
@@ -36,7 +41,6 @@ public class ChunkLoader implements IChunkLoader {
             if (!this.b) {
                 return null;
             }
-
             file1.mkdir();
         }
 
@@ -45,7 +49,6 @@ public class ChunkLoader implements IChunkLoader {
             if (!this.b) {
                 return null;
             }
-
             file1.mkdir();
         }
 
@@ -53,9 +56,17 @@ public class ChunkLoader implements IChunkLoader {
         return !file1.exists() && !this.b ? null : file1;
     }
 
+    public CompletableFuture<Chunk> asyncLoad(World world, int i, int j) {
+        long key = chunkKey(i, j);
+        if (chunkCache.containsKey(key)) {
+            return CompletableFuture.completedFuture(chunkCache.get(key));
+        }
+        return CompletableFuture.supplyAsync(() -> a(world, i, j), loadExecutor);
+    }
+
     public Chunk a(World world, int i, int j) {
         long key = chunkKey(i, j);
-    if (chunkCache.containsKey(key)) return chunkCache.get(key);
+        if (chunkCache.containsKey(key)) return chunkCache.get(key);
 
         File file1 = this.a(i, j);
 
@@ -94,44 +105,42 @@ public class ChunkLoader implements IChunkLoader {
         return null;
     }
 
-    
     public void a(World world, Chunk chunk) {
         chunkCache.remove(chunkKey(chunk.x, chunk.z));
 
         saveExecutor.submit(() -> {
-        world.k();
-        File file1 = this.a(chunk.x, chunk.z);
-
-        if (file1.exists()) {
-            WorldData worlddata = world.q();
-
-            worlddata.b(worlddata.g() - file1.length());
-        }
-
-        try {
-            File file2 = new File(this.a, "tmp_chunk_" + chunk.x + "_" + chunk.z + ".dat");
-            try (BufferedOutputStream fileoutputstream = new BufferedOutputStream(new FileOutputStream(file2))) {
-                NBTTagCompound nbttagcompound = new NBTTagCompound();
-                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-
-                nbttagcompound.a("Level", (NBTBase) nbttagcompound1);
-                a(chunk, world, nbttagcompound1);
-                CompressedStreamTools.a(nbttagcompound, (OutputStream) fileoutputstream);
-            }
+            world.k();
+            File file1 = this.a(chunk.x, chunk.z);
 
             if (file1.exists()) {
-                file1.delete();
+                WorldData worlddata = world.q();
+                worlddata.b(worlddata.g() - file1.length());
             }
 
-            if (!file2.renameTo(file1)) {
-               System.out.println("Warning: rename failed for chunk " + chunk.x + "," + chunk.z);
+            try {
+                File file2 = new File(this.a, "tmp_chunk_" + chunk.x + "_" + chunk.z + ".dat");
+                try (BufferedOutputStream fileoutputstream = new BufferedOutputStream(new FileOutputStream(file2))) {
+                    NBTTagCompound nbttagcompound = new NBTTagCompound();
+                    NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+
+                    nbttagcompound.a("Level", (NBTBase) nbttagcompound1);
+                    a(chunk, world, nbttagcompound1);
+                    CompressedStreamTools.a(nbttagcompound, (OutputStream) fileoutputstream);
+                }
+
+                if (file1.exists()) {
+                    file1.delete();
+                }
+
+                if (!file2.renameTo(file1)) {
+                    System.out.println("Warning: rename failed for chunk " + chunk.x + "," + chunk.z);
+                }
+                WorldData worlddata1 = world.q();
+                worlddata1.b(worlddata1.g() + file1.length());
+            } catch (Exception exception) {
+                System.out.println("Failed to save chunk at " + chunk.x + "," + chunk.z);
+                exception.printStackTrace();
             }
-            WorldData worlddata1 = world.q();
-            worlddata1.b(worlddata1.g() + file1.length());
-        } catch (Exception exception) {
-            System.out.println("Failed to save chunk at " + chunk.x + "," + chunk.z);
-            exception.printStackTrace();
-        }
         });
     }
 
@@ -193,6 +202,7 @@ public class ChunkLoader implements IChunkLoader {
         chunk.g = new NibbleArray(nbttagcompound.j("BlockLight"));
         chunk.heightMap = nbttagcompound.j("HeightMap");
         chunk.done = nbttagcompound.m("TerrainPopulated");
+
         if (!chunk.e.a()) {
             chunk.e = new NibbleArray(chunk.b.length);
         }
@@ -241,12 +251,14 @@ public class ChunkLoader implements IChunkLoader {
     public void a() {}
 
     public void b() {
-    saveExecutor.shutdown();
-    try {
-        saveExecutor.awaitTermination(30, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-    }
+        saveExecutor.shutdown();
+        loadExecutor.shutdown();
+        try {
+            saveExecutor.awaitTermination(30, TimeUnit.SECONDS);
+            loadExecutor.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void b(World world, Chunk chunk) {}
