@@ -9,6 +9,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.command.ColouredConsoleSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.*;
+import org.bukkit.craftbukkit.CraftWorld;
 
 import java.io.*;
 import java.util.*;
@@ -182,6 +183,31 @@ public class ServerConfigurationManager {
         // Flush transient cursor/crafting state before save so disconnects cannot lose those items.
         entityplayer.defaultContainer.a((EntityHuman) entityplayer);
         entityplayer.A();
+
+        // Fix: if player is dead when disconnecting, reset them to spawn/bed before saving
+        // so they don't respawn at their death location on next login
+    if (entityplayer.dead) {
+    entityplayer.health = 20;
+    entityplayer.fireTicks = 0;
+    entityplayer.fallDistance = 0;
+
+    ChunkCoordinates respawn = null;
+    if (entityplayer.spawnWorld != null && !entityplayer.spawnWorld.equals("")) {
+        CraftWorld cworld = (CraftWorld) this.cserver.getWorld(entityplayer.spawnWorld);
+        if (cworld != null && entityplayer.getBed() != null) {
+            respawn = EntityHuman.getBed(cworld.getHandle(), entityplayer.getBed());
+        }
+    }
+    if (respawn == null) {
+        WorldServer defaultWorld = this.server.getWorldServer(0);
+        respawn = defaultWorld.getSpawn();
+        entityplayer.dimension = 0;
+    }
+
+    entityplayer.setPosition(respawn.x + 0.5, respawn.y, respawn.z + 0.5);
+    entityplayer.dead = false;
+}
+
         this.playerFileData.a(entityplayer);
         this.server.getWorldServer(entityplayer.dimension).kill(entityplayer);
         this.players.remove(entityplayer);
