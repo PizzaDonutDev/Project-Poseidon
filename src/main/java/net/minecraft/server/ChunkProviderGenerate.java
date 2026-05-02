@@ -611,7 +611,7 @@ public class ChunkProviderGenerate implements IChunkProvider {
             (new WorldGenLiquids(Block.LAVA.id)).a(this.p, this.j, l2, k3, j3);
         }
 
-        if (this.j.nextInt(180) == 0) {
+        if (this.j.nextInt(800) == 0) {
         int pyramidX = k + this.j.nextInt(16) + 8;
         int pyramidZ = l + this.j.nextInt(16) + 8;
         int pyramidY = this.p.getHighestBlockYAt(pyramidX, pyramidZ);
