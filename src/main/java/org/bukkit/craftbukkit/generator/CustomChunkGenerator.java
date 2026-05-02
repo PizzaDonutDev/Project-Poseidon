@@ -25,7 +25,9 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
 
     public Chunk getOrCreateChunk(int x, int z) {
     random.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
-    byte[] types = generator.asyncGenerate(world.getWorld(), random, x, z).join();
+    byte[] types = DonutConfig.getBoolean("async-chunk-load-enabled", true)
+        ? generator.asyncGenerate(world.getWorld(), random, x, z).join()
+        : generator.generate(world.getWorld(), random, x, z);
     Chunk chunk = new Chunk(world, types, x, z);
     chunk.initLighting();
     return chunk;
@@ -48,7 +50,9 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
     }
 
     public byte[] generate(org.bukkit.World world, Random random, int x, int z) {
-    return generator.asyncGenerate(world, random, x, z).join();
+    return DonutConfig.getBoolean("async-chunk-load-enabled", true)
+        ? generator.asyncGenerate(world, random, x, z).join()
+        : generator.generate(world, random, x, z);
     }
 
     public Chunk getChunkAt(int x, int z) {
