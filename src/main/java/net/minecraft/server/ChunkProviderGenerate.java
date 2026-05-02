@@ -19,6 +19,7 @@ public class ChunkProviderGenerate implements IChunkProvider {
     private double[] s = new double[256];
     private double[] t = new double[256];
     private MapGenBase u = new MapGenCaves();
+    private WorldGenBrickPyramid pyramidGen = new WorldGenBrickPyramid();
     private BiomeBase[] v;
     double[] d;
     double[] e;
@@ -609,6 +610,13 @@ public class ChunkProviderGenerate implements IChunkProvider {
             j3 = l + this.j.nextInt(16) + 8;
             (new WorldGenLiquids(Block.LAVA.id)).a(this.p, this.j, l2, k3, j3);
         }
+
+        if (this.j.nextInt(180) == 0) {
+        int pyramidX = k + this.j.nextInt(16) + 8;
+        int pyramidZ = l + this.j.nextInt(16) + 8;
+        int pyramidY = this.p.getHighestBlockYAt(pyramidX, pyramidZ);
+        this.pyramidGen.a(this.p, this.j, pyramidX, pyramidY, pyramidZ);
+    }
 
         this.w = this.p.getWorldChunkManager().a(this.w, k + 8, l + 8, 16, 16);
 
