@@ -11,7 +11,7 @@ public class WorldGenBrickPyramid extends WorldGenerator {
 
     @Override
     public boolean a(World world, Random rand, int x, int y, int z) {
-        if (!DonutConfig.getBoolean("pyramids-enabled", false)) return false;
+        if (!DonutConfig.getBoolean("pyramids-enabled", true)) return false;
         int startY = y - 8;
         int baseRadius = PYRAMID_HEIGHT - 1;
 
