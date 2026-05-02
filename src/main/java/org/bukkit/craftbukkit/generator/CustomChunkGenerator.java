@@ -24,14 +24,11 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
     }
 
     public Chunk getOrCreateChunk(int x, int z) {
-        random.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
-        byte[] types = generator.generate(world.getWorld(), random, x, z);
-
-        Chunk chunk = new Chunk(world, types, x, z);
-
-        chunk.initLighting();
-
-        return chunk;
+    random.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
+    byte[] types = generator.asyncGenerate(world.getWorld(), random, x, z).join();
+    Chunk chunk = new Chunk(world, types, x, z);
+    chunk.initLighting();
+    return chunk;
     }
 
     public void getChunkAt(IChunkProvider icp, int i, int i1) {
@@ -51,7 +48,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
     }
 
     public byte[] generate(org.bukkit.World world, Random random, int x, int z) {
-        return generator.generate(world, random, x, z);
+    return generator.asyncGenerate(world, random, x, z).join();
     }
 
     public Chunk getChunkAt(int x, int z) {
