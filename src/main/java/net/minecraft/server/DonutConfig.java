@@ -29,10 +29,19 @@ public class DonutConfig {
             writer.println("# Donut Config - Project Poseidon");
             writer.println("# Custom world generation and server settings");
             writer.println();
-            writer.println("# Structures");
+            writer.println("# --- Structures ---");
             writer.println("pyramids-enabled=false");
             writer.println();
+            writer.println("# --- Chunk Loading ---");
+            writer.println("# Cache recently loaded chunks in memory for faster access");
+            writer.println("chunk-cache-enabled=true");
+            writer.println("# Load chunks from disk on a separate thread");
+            writer.println("async-chunk-load-enabled=true");
+            writer.println("# Save chunks to disk on a separate thread");
+            writer.println("async-chunk-save-enabled=true");
+            writer.println();
             writer.close();
+            System.out.println("[Donut] Created default donut.properties");
         } catch (IOException e) {
             System.out.println("[Donut] Failed to create donut.properties.");
             e.printStackTrace();
