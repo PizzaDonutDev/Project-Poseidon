@@ -48,6 +48,14 @@ public class DonutConfig {
         }
     }
 
+    public static void load() {
+    System.out.println("[Donut] Config loaded from: " + new File(CONFIG_PATH).getAbsolutePath());
+    System.out.println("[Donut] pyramids-enabled: " + getBoolean("pyramids-enabled", true));
+    System.out.println("[Donut] async-chunk-load-enabled: " + getBoolean("async-chunk-load-enabled", true));
+    System.out.println("[Donut] async-chunk-save-enabled: " + getBoolean("async-chunk-save-enabled", true));
+    System.out.println("[Donut] chunk-cache-enabled: " + getBoolean("chunk-cache-enabled", true));
+    }
+
     public static boolean getBoolean(String key, boolean defaultValue) {
         return Boolean.parseBoolean(props.getProperty(key, String.valueOf(defaultValue)));
     }
